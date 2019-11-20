@@ -1,0 +1,72 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       https://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!-- 扫描包结构（除Controller外的文件）-->
+    <context:component-scan base-package="com.javakc.ssm" >
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+   <!--读取数据库连接配置文件-->
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:jdbc.properties</value>
+            </list>
+        </property>
+    </bean>
+
+   <!-- 创建数据库连接池-->
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource"
+          init-method="createDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driver}"></property>
+
+        <property name="url" value="${jdbc.url}"></property>
+
+        <property name="username" value="${jdbc.username}"></property>
+
+        <property name="password" value="${jdbc.password}"></property>
+
+        <property name="initialSize" value="${jdbc.initialSize}"></property>
+    </bean>
+
+   <!--  mybatis和SessionFactory-->
+
+    <!--  1.  将SqlSessionFactory交给ioc来管理，进行实例化-->
+    <bean  id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--注入数据源-->
+        <property name="dataSource" ref="dataSource"></property>
+        <!--扫描并映射注册文件-->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"></property>
+        <!--        为对象生成简略别名-->
+        <property name="typeAliasesPackage" value="com.javakc.ssm.*.entity"></property>
+    </bean>
+
+<!--    mybatis自动生成数据层实现类-->
+    <!--mybatis与spring完美整合-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--    扫描数据层接口，为接口动态生成实现-->
+        <property name="basePackage" value="com.javakc.ssm.*.dao"></property>
+        <!--为上一步生成代理对象，注入SqlSessionFactory-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+    </bean>
+
+
+   <!-- 事务管理器-->
+    <tx:jta-transaction-manager></tx:jta-transaction-manager>
+    <!--1.事务管理器-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+   <!--注解事物管理器-->
+
+
+    <!--   注解性事务-->
+    <tx:annotation-driven transaction-manager="transactionManager"></tx:annotation-driven>
+</beans>
