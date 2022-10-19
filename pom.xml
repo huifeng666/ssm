@@ -29,7 +29,7 @@
     <mybatis-spring.version>2.0.2</mybatis-spring.version>
     <commons-dbcp2.version>2.7.0</commons-dbcp2.version>
     <oracle.version>11.2.0</oracle.version>
-    <jackson.version>2.9.9</jackson.version>
+    <jackson.version>2.13.4.1</jackson.version>
     <servlet.version>3.1.0</servlet.version>
     <junit.version>4.12</junit.version>
     <lombok.version>1.16.18</lombok.version>
